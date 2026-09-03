@@ -42,15 +42,20 @@
     <video id="media-a1" class="media" src="./a1.mp4" playsinline></video>
     <img id="media-img" class="media" src="./image.png" alt="image">
     <video id="media-a2" class="media" src="./a2.mp4" playsinline></video>
+    
+    <!-- 音声ファイル -->
+    <audio id="media-audio" src="./カンナム.mp3"></audio>
 
     <script>
-        // 状態管理: 0=黒画面, 1=a1動画, 2=画像, 3=a2動画
+        // 状態管理: 0=黒画面, 1=a1動画, 2=画像のみ, 3=画像+音楽, 4=a2動画, 5=黒画面(終了)
         let currentState = 0;
 
         const a1 = document.getElementById('media-a1');
         const img = document.getElementById('media-img');
         const a2 = document.getElementById('media-a2');
-        const allMedia = [a1, img, a2];
+        const audio = document.getElementById('media-audio');
+        
+        const visualMedia = [a1, img, a2]; 
 
         // 1. スペースキーでの進行処理
         document.addEventListener('keydown', (event) => {
@@ -58,10 +63,6 @@
             if (event.code === 'Space') {
                 event.preventDefault(); // スペースキーによる画面スクロールを防ぐ
                 currentState++;
-                
-                // 最後まで行ったら最初（黒画面）に戻す場合は以下のコメントを外す
-                // if (currentState > 3) currentState = 0; 
-                
                 updateScreen();
             }
         });
@@ -83,26 +84,37 @@
 
         // 3. 画面の表示を切り替える関数
         function updateScreen() {
-            // 一旦すべてのメディアを非表示にして、動画を一時停止・巻き戻す
-            allMedia.forEach(media => {
+            // 一旦すべての画像・動画を非表示にして、動画を一時停止・巻き戻す
+            visualMedia.forEach(media => {
                 media.classList.remove('active');
                 if (media.tagName === 'VIDEO') {
                     media.pause();
                     media.currentTime = 0;
                 }
             });
+            
+            // 音声も一旦停止・巻き戻す
+            audio.pause();
+            audio.currentTime = 0;
 
             // 状態に応じて表示・再生
             if (currentState === 1) {
+                // 1. a1.mp4
                 a1.classList.add('active');
                 a1.play();
             } else if (currentState === 2) {
+                // 2. image.png
                 img.classList.add('active');
             } else if (currentState === 3) {
+                // 3. image.png + カンナム.mp3
+                img.classList.add('active');
+                audio.play();
+            } else if (currentState === 4) {
+                // 4. a2.mp4 (画像と音楽は上でリセット・停止されているので自動で消えます)
                 a2.classList.add('active');
                 a2.play();
             }
-            // currentState が 0 または 4以上の場合は何も表示されない（黒画面）
+            // currentState が 5以上の場合は何も表示されない・音も鳴らない（終了後の黒画面）
         }
     </script>
 </body>
