@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Sequence</title>
+    <style>
+        /* 画面全体の設定：背景黒、余白なし、スクロールバー非表示 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer; /* クリックできることを示す */
+        }
+
+        /* メディア（動画・画像）の基本設定：最初は非表示 */
+        .media {
+            display: none;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* アスペクト比を保って画面に収める */
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* 表示状態のクラス */
+        .active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ファイル名をご自身のものに合わせて変更してください -->
+    <video id="media-a1" class="media" src="./a1.mp4" playsinline></video>
+    <img id="media-img" class="media" src="./image.png" alt="image">
+    <video id="media-a2" class="media" src="./a2.mp4" playsinline></video>
+
+    <script>
+        // 状態管理: 0=黒画面, 1=a1動画, 2=画像, 3=a2動画
+        let currentState = 0;
+
+        const a1 = document.getElementById('media-a1');
+        const img = document.getElementById('media-img');
+        const a2 = document.getElementById('media-a2');
+        const allMedia = [a1, img, a2];
+
+        // 1. スペースキーでの進行処理
+        document.addEventListener('keydown', (event) => {
+            // スペースキー（Space）が押されたら
+            if (event.code === 'Space') {
+                event.preventDefault(); // スペースキーによる画面スクロールを防ぐ
+                currentState++;
+                
+                // 最後まで行ったら最初（黒画面）に戻す場合は以下のコメントを外す
+                // if (currentState > 3) currentState = 0; 
+                
+                updateScreen();
+            }
+        });
+
+        // 2. 画面クリックでの全画面（フルスクリーン）切り替え処理
+        document.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                // 全画面にする
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                // 全画面を解除する
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+        // 3. 画面の表示を切り替える関数
+        function updateScreen() {
+            // 一旦すべてのメディアを非表示にして、動画を一時停止・巻き戻す
+            allMedia.forEach(media => {
+                media.classList.remove('active');
+                if (media.tagName === 'VIDEO') {
+                    media.pause();
+                    media.currentTime = 0;
+                }
+            });
+
+            // 状態に応じて表示・再生
+            if (currentState === 1) {
+                a1.classList.add('active');
+                a1.play();
+            } else if (currentState === 2) {
+                img.classList.add('active');
+            } else if (currentState === 3) {
+                a2.classList.add('active');
+                a2.play();
+            }
+            // currentState が 0 または 4以上の場合は何も表示されない（黒画面）
+        }
+    </script>
+</body>
+</html>
