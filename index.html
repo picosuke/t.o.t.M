@@ -43,10 +43,11 @@
     <img id="media-img" class="media" src="./image.png" alt="image">
     <video id="media-a2" class="media" src="./a2.mp4" playsinline></video>
     
-    <!-- 音声ファイル 3つ分 -->
+    <!-- 音声ファイル 4つ分 -->
     <audio id="audio-18" src="./18.m4a"></audio>
     <audio id="audio-16" src="./16.m4a"></audio>
     <audio id="audio-17" src="./17.m4a"></audio>
+    <audio id="audio-tas" src="./tas.mp3"></audio>
 
     <script>
         // 状態管理: 何回スペースが押されたか
@@ -62,7 +63,8 @@
         const audio18 = document.getElementById('audio-18');
         const audio16 = document.getElementById('audio-16');
         const audio17 = document.getElementById('audio-17');
-        const allAudio = [audio18, audio16, audio17];
+        const audioTas = document.getElementById('audio-tas');
+        const allAudio = [audio18, audio16, audio17, audioTas];
 
         // 1. スペースキーでの進行処理
         document.addEventListener('keydown', (event) => {
@@ -108,27 +110,35 @@
 
             // 状態に応じて表示・再生
             if (currentState === 1) {
-                // 1回目： a1.mp4
+                // スペース1回目: a1.mp4
                 a1.classList.add('active');
                 a1.play();
             } else if (currentState === 2) {
-                // 2回目： image.png + 18.m4a
+                // スペース2回目: image.png + 18.m4a
                 img.classList.add('active');
                 audio18.play();
             } else if (currentState === 3) {
-                // 3回目： image.png + 16.m4a
+                // スペース3回目: image.png + tas.mp3
+                img.classList.add('active');
+                audioTas.play();
+            } else if (currentState === 4) {
+                // スペース4回目: image.png + 16.m4a
                 img.classList.add('active');
                 audio16.play();
-            } else if (currentState === 4) {
-                // 4回目： image.png + 17.m4a
+            } else if (currentState === 5) {
+                // スペース5回目: image.png + 17.m4a
                 img.classList.add('active');
                 audio17.play();
-            } else if (currentState === 5) {
-                // 5回目： a2.mp4
+            } else if (currentState === 6) {
+                // スペース6回目: image.png + tas.mp3
+                img.classList.add('active');
+                audioTas.play();
+            } else if (currentState === 7) {
+                // スペース7回目: a2.mp4
                 a2.classList.add('active');
                 a2.play();
             }
-            // 6回目以降は、上記のどの条件にも当てはまらないため、全て非表示・停止したまま（黒画面）になります。
+            // スペース8回目以降は、上記のどの条件にも当てはまらないため、全て非表示・停止したまま（黒画面）になります。
         }
     </script>
 </body>
