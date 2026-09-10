@@ -38,24 +38,31 @@
 </head>
 <body>
 
-    <!-- ファイル名をご自身のものに合わせて変更してください -->
+    <!-- 動画・画像ファイル -->
     <video id="media-a1" class="media" src="./a1.mp4" playsinline></video>
     <img id="media-img" class="media" src="./image.png" alt="image">
     <video id="media-a2" class="media" src="./a2.mp4" playsinline></video>
     
-    <!-- 音声ファイル -->
-    <audio id="media-audio" src="./カンナム.mp3"></audio>
+    <!-- 音声ファイル 3つ分 -->
+    <audio id="audio-18" src="./18.m4a"></audio>
+    <audio id="audio-16" src="./16.m4a"></audio>
+    <audio id="audio-17" src="./17.m4a"></audio>
 
     <script>
-        // 状態管理: 0=黒画面, 1=a1動画, 2=画像のみ, 3=画像+音楽, 4=a2動画, 5=黒画面(終了)
+        // 状態管理: 何回スペースが押されたか
         let currentState = 0;
 
+        // 動画・画像のエレメント取得
         const a1 = document.getElementById('media-a1');
         const img = document.getElementById('media-img');
         const a2 = document.getElementById('media-a2');
-        const audio = document.getElementById('media-audio');
-        
         const visualMedia = [a1, img, a2]; 
+
+        // 音声のエレメント取得
+        const audio18 = document.getElementById('audio-18');
+        const audio16 = document.getElementById('audio-16');
+        const audio17 = document.getElementById('audio-17');
+        const allAudio = [audio18, audio16, audio17];
 
         // 1. スペースキーでの進行処理
         document.addEventListener('keydown', (event) => {
@@ -82,7 +89,7 @@
             }
         });
 
-        // 3. 画面の表示を切り替える関数
+        // 3. 画面の表示・音声を切り替える関数
         function updateScreen() {
             // 一旦すべての画像・動画を非表示にして、動画を一時停止・巻き戻す
             visualMedia.forEach(media => {
@@ -93,28 +100,35 @@
                 }
             });
             
-            // 音声も一旦停止・巻き戻す
-            audio.pause();
-            audio.currentTime = 0;
+            // すべての音声を一旦停止・巻き戻す
+            allAudio.forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
 
             // 状態に応じて表示・再生
             if (currentState === 1) {
-                // 1. a1.mp4
+                // 1回目： a1.mp4
                 a1.classList.add('active');
                 a1.play();
             } else if (currentState === 2) {
-                // 2. image.png
+                // 2回目： image.png + 18.m4a
                 img.classList.add('active');
+                audio18.play();
             } else if (currentState === 3) {
-                // 3. image.png + カンナム.mp3
+                // 3回目： image.png + 16.m4a
                 img.classList.add('active');
-                audio.play();
+                audio16.play();
             } else if (currentState === 4) {
-                // 4. a2.mp4 (画像と音楽は上でリセット・停止されているので自動で消えます)
+                // 4回目： image.png + 17.m4a
+                img.classList.add('active');
+                audio17.play();
+            } else if (currentState === 5) {
+                // 5回目： a2.mp4
                 a2.classList.add('active');
                 a2.play();
             }
-            // currentState が 5以上の場合は何も表示されない・音も鳴らない（終了後の黒画面）
+            // 6回目以降は、上記のどの条件にも当てはまらないため、全て非表示・停止したまま（黒画面）になります。
         }
     </script>
 </body>
