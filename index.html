@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Sequence</title>
+    <!-- favicon.ico のエラーを防止する設定 -->
+    <link rel="icon" href="data:,">
+    
     <style>
-        /* 画面全体の設定：背景黒、余白なし、スクロールバー非表示 */
         body, html {
             margin: 0;
             padding: 0;
@@ -16,21 +18,19 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            cursor: pointer; /* クリックできることを示す */
+            cursor: pointer;
         }
 
-        /* メディア（動画・画像）の基本設定：最初は非表示 */
         .media {
             display: none;
             width: 100%;
             height: 100%;
-            object-fit: contain; /* アスペクト比を保って画面に収める */
+            object-fit: contain;
             position: absolute;
             top: 0;
             left: 0;
         }
 
-        /* 表示状態のクラス */
         .active {
             display: block;
         }
@@ -39,59 +39,60 @@
 <body>
 
     <!-- 動画・画像ファイル -->
-    <video id="media-a1" class="media" src="./a1.mp4" playsinline></video>
+    <video id="media-a1" class="media" src="./a1.mp4" playsinline preload="auto"></video>
     <img id="media-img" class="media" src="./image.png" alt="image">
-    <video id="media-a2" class="media" src="./a2.mp4" playsinline></video>
+    <video id="media-a2" class="media" src="./a2.mp4" playsinline preload="auto"></video>
     
-    <!-- 音声ファイル（18.m4a, tas.mp3, e.m4a） -->
-    <audio id="audio-18" src="./18.m4a"></audio>
-    <audio id="audio-tas" src="./tas.mp3"></audio>
-    <audio id="audio-e" src="./e.m4a"></audio>
+    <!-- 音声ファイル -->
+    <audio id="audio-18" src="./18.m4a" preload="auto"></audio>
+    <audio id="audio-tas" src="./tas.mp3" preload="auto"></audio>
+    <audio id="audio-e" src="./e.m4a" preload="auto"></audio>
 
     <script>
-        // 状態管理
         let currentState = 0;
 
-        // 動画・画像のエレメント取得
         const a1 = document.getElementById('media-a1');
         const img = document.getElementById('media-img');
         const a2 = document.getElementById('media-a2');
         const visualMedia = [a1, img, a2]; 
 
-        // 音声のエレメント取得
         const audio18 = document.getElementById('audio-18');
         const audioTas = document.getElementById('audio-tas');
         const audioE = document.getElementById('audio-e');
         const allAudio = [audio18, audioTas, audioE];
 
-        // 1. 数字キー（1〜7）が押されたときの処理
+        // 再生関数（エラーが起きたらファイル名をコンソールに出す）
+        function safePlay(mediaElement, fileName) {
+            mediaElement.play().catch(error => {
+                console.error(`【エラー】「${fileName}」を再生できませんでした。GitHub上のファイル名や大文字小文字を確認してください。`, error);
+            });
+        }
+
+        // 1. 数字キー（1〜7）入力
         document.addEventListener('keydown', (event) => {
-            // 押されたキーが 1〜7 の場合
             if (['1', '2', '3', '4', '5', '6', '7'].includes(event.key)) {
                 event.preventDefault();
-                currentState = parseInt(event.key, 10); // 押された数字に状態を変更
+                currentState = parseInt(event.key, 10);
                 updateScreen();
             }
         });
 
-        // 2. 画面クリックでの全画面（フルスクリーン）切り替え処理
+        // 2. クリックで全画面
         document.addEventListener('click', () => {
             if (!document.fullscreenElement) {
-                // 全画面にする
                 document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                    console.log(`全画面エラー: ${err.message}`);
                 });
             } else {
-                // 全画面を解除する
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 }
             }
         });
 
-        // 3. 画面の表示・音声を切り替える関数
+        // 3. 画面の切り替え
         function updateScreen() {
-            // 一旦すべての画像・動画を非表示にして、動画を一時停止・巻き戻す
+            // リセット
             visualMedia.forEach(media => {
                 media.classList.remove('active');
                 if (media.tagName === 'VIDEO') {
@@ -99,40 +100,32 @@
                     media.currentTime = 0;
                 }
             });
-            
-            // すべての音声を一旦停止・巻き戻す
             allAudio.forEach(audio => {
                 audio.pause();
                 audio.currentTime = 0;
             });
 
-            // 押された数字キーに応じて再生
+            // 状態に応じた処理
             if (currentState === 1) {
-                // 1：a1.mp4 再生
                 a1.classList.add('active');
-                a1.play();
+                safePlay(a1, 'a1.mp4');
             } else if (currentState === 2) {
-                // 2：image.png が表示して 18.m4a 再生
                 img.classList.add('active');
-                audio18.play();
+                safePlay(audio18, '18.m4a');
             } else if (currentState === 3) {
-                // 3：image.png が表示して tas.mp3 再生
                 img.classList.add('active');
-                audioTas.play();
+                safePlay(audioTas, 'tas.mp3');
             } else if (currentState === 4) {
-                // 4：image.png が表示して e.m4a 再生
                 img.classList.add('active');
-                audioE.play();
+                safePlay(audioE, 'e.m4a');
             } else if (currentState === 5) {
-                // 5：image.png が表示して tas.mp3 再生
                 img.classList.add('active');
-                audioTas.play();
+                safePlay(audioTas, 'tas.mp3');
             } else if (currentState === 6) {
-                // 6：a2.mp4 再生（画像と音楽は停止）
                 a2.classList.add('active');
-                a2.play();
+                safePlay(a2, 'a2.mp4');
             } else if (currentState === 7) {
-                // 7：全て止まって真っ黒（最初のリセット処理だけで何も表示・再生しない）
+                // 黒画面
             }
         }
     </script>
